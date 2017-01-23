@@ -1,0 +1,98 @@
+---
+title: "mtcars Data"
+author: "Abdalrhman Hassan"
+date: "January 23, 2017"
+output: slidy_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+## Preface
+
+** mtcars Data **
+This project shows the data and the code that has been used in the shiny project.
+
+The data was extracted from the 1974 Motor Trend US magazine, and comprises fuel consumption and 10 aspects of automobile design and performance for 32 automobiles (1973-74 models).
+Also, the data has 32 obsarvatio and 11 variable:
+
+Index	  Field	    Detail
+[, 1]	   mpg	    Miles/(US) gallon
+
+[, 2]	   cyl	    Number of cylinders
+
+[, 3]	   disp	    Displacement (cu.in.)
+
+[, 4]	   hp	      Gross horsepower
+
+[, 5]	   drat	    Rear axle ratio
+
+[, 6]	   wt	      Weight (lb/1000)
+
+[, 7]	   qsec	    1/4 mile time
+
+## preface
+
+[, 8]	   vs	      V/S
+
+[, 9]	   am	      Transmission (0 = automatic, 1 = manual)
+
+[,10]	   gear	    Number of forward gears
+
+[,11]	   carb	    Number of carburetors
+
+
+## mtcars dataset
+
+```{r cars, echo = TRUE}
+head(mtcars)
+```
+
+## The code
+
+
+mtcars$am <- factor(mtcars$am, labels = c("Automatic", "Manual"))
+
+shinyServer(function(input, output) {
+  
+  formulaText <- reactive({
+    paste("mpg ~", input$variable)
+  })
+  
+  formulaTextPoint <- reactive({
+    paste("mpg ~", "as.integer(", input$variable, ")")
+  })
+  
+  fit <- reactive({
+    lm(as.formula(formulaTextPoint()), data=mtcars)
+  })
+  
+  output$caption <- renderText({
+    formulaText()
+  })
+  
+  
+## The Code 
+  
+  output$mpgBoxPlot <- renderPlot({
+    boxplot(as.formula(formulaText()), 
+            data = mtcars,
+            outline = input$outliers)
+  })
+  
+  output$fit <- renderPrint({
+    summary(fit())
+  })
+  
+  output$mpgPlot <- renderPlot({
+    with(mtcars, {
+      plot(as.formula(formulaTextPoint()))
+      abline(fit(), col=2)
+    })
+  })
+  
+})
+
+
